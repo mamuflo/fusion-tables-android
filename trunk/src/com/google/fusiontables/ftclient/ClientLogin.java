@@ -1,3 +1,5 @@
+// Copyright 2011 Google Inc. All Rights Reserved.
+
 package com.google.fusiontables.ftclient;
 
 import java.net.URLEncoder;
@@ -6,6 +8,8 @@ import com.google.fusiontables.url.RequestHandler;
 
 /**
  * Helper class for getting auth token.
+ * 
+ * @author kbrisbin@google.com (Kathryn Hurley)
  */
 public class ClientLogin {
   private final static String authURI =
