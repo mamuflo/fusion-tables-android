@@ -1,3 +1,5 @@
+// Copyright 2011 Google Inc. All Rights Reserved.
+
 package com.google.fusiontables;
 
 import java.io.IOException;
@@ -12,6 +14,8 @@ import android.os.Bundle;
 
 /**
  * Location listener - gets updates from GPS to set current location.
+ * 
+ * @author kbrisbin@google.com (Kathryn Hurley)
  */
 public class MyLocationListener implements LocationListener {
   private Location location;

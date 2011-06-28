@@ -1,3 +1,5 @@
+// Copyright 2011 Google Inc. All Rights Reserved.
+
 package com.google.fusiontables;
 
 import java.util.Date;
@@ -19,6 +21,11 @@ import android.widget.Toast;
 import com.google.fusiontables.ftclient.ClientLogin;
 import com.google.fusiontables.ftclient.FTClient;
 
+/**
+ * Main activity class.
+ * 
+ * @author kbrisbin@google.com (Kathryn Hurley)
+ */
 public class FusionTablesDemoActivity extends Activity {
 
   private Button button;

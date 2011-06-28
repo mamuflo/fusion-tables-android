@@ -1,3 +1,5 @@
+// Copyright 2011 Google Inc. All Rights Reserved.
+
 package com.google.fusiontables.url;
 
 import java.io.BufferedReader;
@@ -17,6 +19,8 @@ import java.util.Set;
 
 /**
  * Helper class for sending HTTP requests.
+ * 
+ * @author kbrisbin@google.com (Kathryn Hurley)
  */
 public class RequestHandler {
 

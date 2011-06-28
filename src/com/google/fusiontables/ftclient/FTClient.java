@@ -1,3 +1,5 @@
+// Copyright 2011 Google Inc. All Rights Reserved.
+
 package com.google.fusiontables.ftclient;
 
 import java.net.URLEncoder;
@@ -7,6 +9,8 @@ import com.google.fusiontables.url.RequestHandler;
 
 /**
  * Helper class for sending Fusion Tables requests.
+ * 
+ * @author kbrisbin@google.com (Kathryn Hurley)
  */
 public class FTClient {
   private String token;
