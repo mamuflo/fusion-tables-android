@@ -2,111 +2,101 @@
 
 package com.google.fusiontables.url;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.util.HashMap;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
+import android.util.Log;
+
 /**
- * Helper class for sending HTTP requests.
+ * Creates and sends http POST and GET requests. Returns string-formatted
+ * response.
  * 
  * @author kbrisbin@google.com (Kathryn Hurley)
  */
 public class RequestHandler {
+  private static final String TAG = "REQUEST HANDLER";
 
   /**
    * Send an HTTP POST or GET request.
    *
-   * @param uri  the URL
-   * @param method  either POST or GET
-   * @param body  the body of the HTTP request, can be null
-   * @param headers  a map of any headers to add to the request, can be null
-   * @return the string response
+   * @param uri the URL
+   * @param method either POST or GET
+   * @param body the body of the HTTP request, can be null
+   * @param headers a map of any headers to add to the request, can be null
+   * @return the string response, or null if there was an error
    */
   public static String sendHttpRequest(String uri, String method,
-      String body, HashMap<String, String> headers)  {
-
-    StringBuilder sb = new StringBuilder();
+      String body, Map<String, String> headers)  {
 
     try {
-      // Open the connection
-      URL url = new URL(uri);
-      HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-      conn.setRequestMethod(method);
+      HttpClient httpclient = new DefaultHttpClient();
+      HttpUriRequest request;
+      
+      // Initialize the request
+      if (method  == "POST") {
+        request = new HttpPost(uri);
+        request.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
-      // Set Content type header
-      if (method == "POST") {
-        conn.setRequestProperty("Content-type",
-            "application/x-www-form-urlencoded");
-        conn.setDoOutput(true);
+        HttpEntity requestBody = new StringEntity(body);
+        ((HttpPost) request).setEntity(requestBody);
+        
+      } else {
+        request = new HttpGet(uri);
       }
 
-      // Set headers
+      // Set the headers
       if (headers != null) {
-        Set<String> keys = headers.keySet();
-        Iterator<String> it = keys.iterator();
-        String header = "";
-        while (it.hasNext()) {
-          header = it.next();
-          conn.setRequestProperty(header, headers.get(header));
-        }
+        setHeaders(headers, request);
       }
 
-      // Add the body
-      if (body != null) {
-        OutputStream out = conn.getOutputStream();
-        Writer writer = new OutputStreamWriter(out, "UTF-8");
-        writer.write(body);
-        writer.flush();
-        writer.close();
-        out.close();
-      }
+      // Execute the request
+      HttpResponse response = httpclient.execute(request);
 
       // Read the response
-      InputStreamReader reader = new InputStreamReader(conn.getInputStream());
-      BufferedReader bufferedReader = new BufferedReader(reader);
-      String line;
-      while ((line = bufferedReader.readLine()) != null) {
-        sb.append(line);
-      }
-      bufferedReader.close();
-      conn.disconnect();
+      HttpEntity entity = response.getEntity();
+      String responseContent = EntityUtils.toString(entity);
 
-    } catch (MalformedURLException ex) {
-      System.out.println("URL was malformed: " + uri);
-      ex.printStackTrace();
-      return null;
+      return responseContent;
 
-    } catch (FileNotFoundException ex) {
-      System.out.println("Something was wrong with the connection.");
-      System.out.println("Check your url: " + uri);
-      ex.printStackTrace();
-      return null;
-
-    } catch (ProtocolException ex) {
-      System.out.println("Protocol is incorrect: " + uri);
-      ex.printStackTrace();
-      return null;
-
-    } catch (IOException ex) {
-      System.out.println("Error during IO");
-      ex.printStackTrace();
-      return null;
-
-    } catch (Exception ex) {
-      ex.printStackTrace();
+    } catch (UnsupportedEncodingException e) {
+      Log.e(TAG, "Message could not be encoded: " + body, e);
+    } catch (ClientProtocolException e) {
+      Log.e(TAG, "Incorrect protocol: " + uri, e);
+    } catch (IOException e) {
+      Log.e(TAG, "Error accessing resource: " + uri, e);
     }
 
-    return sb.toString();
+    return null;
+  }
+  
+  /**
+   * Adds the headers to the request.
+   *
+   * @param headers a map of any headers to add to the request, can be null
+   * @param request the http request
+   */
+  private static void setHeaders(Map<String, String> headers,
+      HttpUriRequest request) {
+    Set<String> keys = headers.keySet();
+    Iterator<String> it = keys.iterator();
+    String header = "";
+    while (it.hasNext()) {
+      header = it.next();
+      request.setHeader(header, headers.get(header));
+    }
   }
 }

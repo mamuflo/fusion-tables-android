@@ -19,7 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.fusiontables.ftclient.ClientLogin;
-import com.google.fusiontables.ftclient.FTClient;
+import com.google.fusiontables.ftclient.FtClient;
 
 /**
  * Main activity class.
@@ -34,17 +34,15 @@ public class FusionTablesDemoActivity extends Activity {
   private LocationManager locationManager;
   private String locationProvider = LocationManager.GPS_PROVIDER;
 
-  private FTClient ftclient;
+  private FtClient ftclient;
   private long tableid = 123456;
   private String username = "<username>";
   private String password = "<password>";
-  private String embedLink = "http://gmaps-samples.googlecode.com/svn/trunk/" +
-      "fusiontables/potholes.html";
+  private String embedLink = "http://gmaps-samples.googlecode.com/svn/trunk/"
+      + "fusiontables/potholes.html";
 
   /**
-   * Method called during start up
-   *
-   * @param savedInstanceState the saved instance state
+   * Authorizes the user and initializes the UI.
    */
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -53,7 +51,7 @@ public class FusionTablesDemoActivity extends Activity {
 
     // Initialize FTClient
     String token = ClientLogin.authorize(username, password);
-    ftclient = new FTClient(token);
+    ftclient = new FtClient(token);
 
     initSpinner();
     initButton();
@@ -61,7 +59,22 @@ public class FusionTablesDemoActivity extends Activity {
   }
 
   /**
-   * Method called during app pause. Stops GPS readings.
+   * Authorizes the user and initializes the UI.
+   */
+  public void enableButton(boolean enabled) {
+    button.setEnabled(enabled);
+  }
+
+  /**
+   * Updates location text view.
+   */
+  public void setLocationText(String address) {
+    TextView tv = (TextView) findViewById(R.id.location);
+    tv.setText(address);
+  }
+
+  /**
+   * Stops GPS reading when the app is paused.
    */
   @Override
   protected void onPause() {
@@ -70,22 +83,22 @@ public class FusionTablesDemoActivity extends Activity {
   }
 
   /**
-   * Method called during app resume. Starts GPS readings.
+   * Starts GPS readings when the app resumes.
    */
   @Override
   protected void onResume() {
     super.onResume();
     requestUpdates();
-    enableButton();
+    enableButton(true);
   }
 
   /**
-   * Initializes the spinner menu with an array adapter.
+   * Initializes the spinner menu.
    */
   private void initSpinner() {
     Spinner spinner = (Spinner) findViewById(R.id.status);
-    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-            this, R.array.statuses, android.R.layout.simple_spinner_item);
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+        R.array.statuses, android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(
         android.R.layout.simple_spinner_dropdown_item);
     spinner.setAdapter(adapter);
@@ -98,13 +111,13 @@ public class FusionTablesDemoActivity extends Activity {
     button = (Button) findViewById(R.id.submitform);
 
     // Disable until GPS reading is obtained.
-    button.setEnabled(false);
+    enableButton(false);
 
     button.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
         // Tell the user thanks
-        Toast.makeText(FusionTablesDemoActivity.this,
-            "Thanks for reporting!", 10).show();
+        Toast.makeText(FusionTablesDemoActivity.this, "Thanks for reporting!",
+            10).show();
 
         // Open the map in a browser
         Intent browserIntent = new Intent(Intent.ACTION_VIEW,
@@ -116,12 +129,11 @@ public class FusionTablesDemoActivity extends Activity {
         long state = spinner.getSelectedItemId();
 
         // Save the data to Fusion Tables
-        ftclient.query("INSERT INTO " + tableid +
-            " (Severity, Location, Address, Timestamp) VALUES " +
-            "(" + state + "," +
-              " '" + locationListener.getStringLocation() + "' ," +
-              " '" + locationListener.getAddress() + "'," +
-              new Date().getTime() + ")");
+        ftclient.query("INSERT INTO " + tableid
+            + " (Severity, Location, Address, Timestamp) VALUES " + "(" + state
+            + "," + " '" + locationListener.getStringLocation() + "' ," + " '"
+            + locationListener.getAddress() + "',"
+            + new Date().getTime() + ")");
       }
     });
   }
@@ -130,52 +142,26 @@ public class FusionTablesDemoActivity extends Activity {
    * Initializes the location listener.
    */
   private void initLocation() {
-    locationManager = (LocationManager)getSystemService(
+    locationManager = (LocationManager) getSystemService(
         Context.LOCATION_SERVICE);
-    Location lastKnownLocation = locationManager.getLastKnownLocation(
-        locationProvider);
+    Location lastKnownLocation = locationManager
+        .getLastKnownLocation(locationProvider);
 
     locationListener = new MyLocationListener(this);
     if (lastKnownLocation != null) {
       locationListener.setLocation(lastKnownLocation);
     }
-    setLocationText(locationListener.getFormattedAddress());
+    setLocationText(locationListener.getAddress());
 
     requestUpdates();
   }
 
   /**
-   * Request location updates.
+   * Requests location updates.
    */
   private void requestUpdates() {
     Toast.makeText(this, "Getting location...", 15).show();
     locationManager.requestLocationUpdates(locationProvider, 5000, 1,
         locationListener);
-  }
-
-  /**
-   * Update location text view.
-   */
-  public void setLocationText(String address) {
-    TextView tv = (TextView) findViewById(R.id.location);
-    tv.setText(address);
-  }
-
-  /**
-   * Enable the button if disabled.
-   */
-  public void enableButton() {
-    if (!button.isEnabled()) {
-      button.setEnabled(true);
-    }
-  }
-
-  /**
-   * Disable the button if enabled.
-   */
-  public void disableButton() {
-    if (button.isEnabled()) {
-      button.setEnabled(false);
-    }
   }
 }
