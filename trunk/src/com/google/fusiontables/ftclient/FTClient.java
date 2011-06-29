@@ -4,25 +4,26 @@ package com.google.fusiontables.ftclient;
 
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.google.fusiontables.url.RequestHandler;
 
 /**
- * Helper class for sending Fusion Tables requests.
+ * Handles requests to Fusion Tables.
  * 
  * @author kbrisbin@google.com (Kathryn Hurley)
  */
-public class FTClient {
+public class FtClient {
+  public static final String REQUEST_URL =
+    "https://www.google.com/fusiontables/api/query";
   private String token;
-  private final String requestURL =
-      "https://www.google.com/fusiontables/api/query";
 
   /**
    * Constructor, sets the auth token.
    *
    * @param token  the ClientLogin token
    */
-  public FTClient(String token) {
+  public FtClient(String token) {
     this.token = token;
   }
 
@@ -36,25 +37,24 @@ public class FTClient {
     String result = "";
 
     // Create the auth header
-    HashMap<String, String> headers = new HashMap<String, String>();
+    Map<String, String> headers = new HashMap<String, String>();
     headers.put("Authorization", "GoogleLogin auth=" + this.token);
 
-    // Convert to lower
+    // Convert to lower for comparison below
     String lower = query.toLowerCase();
     // Encode the query
     query = "sql=" + URLEncoder.encode(query);
 
     // Determine POST or GET based on query
-    if (lower.startsWith("SELECT") ||
-        lower.startsWith("SHOW") ||
-        lower.startsWith("DESCRIBE")) {
+    if (lower.startsWith("select") ||
+        lower.startsWith("show") ||
+        lower.startsWith("describe")) {
 
-      result = RequestHandler.sendHttpRequest(this.requestURL + "?" + query,
+      result = RequestHandler.sendHttpRequest(this.REQUEST_URL + "?" + query,
           "GET", null, headers);
 
     } else {
-
-      result = RequestHandler.sendHttpRequest(this.requestURL,
+      result = RequestHandler.sendHttpRequest(this.REQUEST_URL,
           "POST", query, headers);
     }
 

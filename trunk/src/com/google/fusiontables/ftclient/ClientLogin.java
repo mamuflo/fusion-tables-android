@@ -16,30 +16,28 @@ public class ClientLogin {
       "https://www.google.com/accounts/ClientLogin";
 
   /**
-   * Get auth token.
+   * Returns the auth token if the user is successfully authorized.
    *
    * @param username  the username
    * @param password  the password
-   * @return the client login token
+   * @return the client login token, or null if not authorized
    */
   public static String authorize(String username, String password) {
-    String token = "";
-    try {
-      // Encode the body
-      String body = "Email=" + URLEncoder.encode(username) + "&" +
-        "Passwd=" + URLEncoder.encode(password) + "&" +
-        "service=" + URLEncoder.encode("fusiontables") + "&" +
-        "accountType=" + URLEncoder.encode("HOSTED_OR_GOOGLE");
+    // Encode the body
+    String body = "Email=" + URLEncoder.encode(username) + "&" +
+      "Passwd=" + URLEncoder.encode(password) + "&" +
+      "service=fusiontables&" +
+      "accountType=HOSTED_OR_GOOGLE";
 
-      // Send the response and parse results to get token
-      String response = RequestHandler.sendHttpRequest(authURI, "POST",
-          body, null);
-      token = response.trim().split("=")[3];
+    // Send the response and parse results to get token
+    String response = RequestHandler.sendHttpRequest(authURI, "POST",
+        body, null);
 
-    } catch(Exception ex) {
-      ex.printStackTrace();
+    // If the response is length 4, the authorization was successful
+    String[] splitResponse = response.trim().split("=");
+    if (splitResponse.length == 4) {
+      return splitResponse[3];
     }
-
-    return token;
+    return null;
   }
 }

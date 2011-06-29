@@ -20,23 +20,22 @@ import android.os.Bundle;
 public class MyLocationListener implements LocationListener {
   private Location location;
   private String address = "";
-  private String formattedAddress = "";
   private FusionTablesDemoActivity act;
   private static final int TWO_MINUTES = 1000 * 60 * 2;
 
   /**
    * Constructor, sets the activity.
-   *
-   * @param act  the FusionTablesDemoActivity
+   * 
+   * @param act the FusionTablesDemoActivity
    */
   public MyLocationListener(FusionTablesDemoActivity act) {
     this.act = act;
   }
 
   /**
-   * Called when the location changes.
-   *
-   * @param location  the new location
+   * Set the new location when a new location is acquired.
+   * 
+   * @param location the new location
    */
   public void onLocationChanged(Location location) {
     setLocation(location);
@@ -44,51 +43,86 @@ public class MyLocationListener implements LocationListener {
 
   /**
    * Sets the new location values.
-   *
-   * @param location  the new location
+   * 
+   * @param location the new location
    */
   public void setLocation(Location location) {
-    // Only if the new location is better
+    // Only change the location if the new one is better
     if (isBetterLocation(location, this.location)) {
       Geocoder gc = new Geocoder(this.act, Locale.getDefault());
       try {
-        // Get a list of addresses
+        // Get the first address in the list of possible addresses for
+        // the lat/lon coordinates
         List<Address> addresses = gc.getFromLocation(location.getLatitude(),
             location.getLongitude(), 1);
 
-        // Initialize 2 strings, one simple and one formatted
-        StringBuilder simpleAddress = new StringBuilder();
-        StringBuilder formAddress = new StringBuilder();
-
-        // Concatenate the address strings
-        if (addresses.size() > 0) {
+        // If an address was returned, concatenate the results into
+        // a string
+        StringBuilder formattedAddress = new StringBuilder();
+        if (!addresses.isEmpty()) {
           Address address = addresses.get(0);
-          for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-            simpleAddress.append(address.getAddressLine(i) + " ");
-            formAddress.append(address.getAddressLine(i) + "\n");
-          }
-        }
 
-        // If there really is an address, set the new location
-        if (simpleAddress.toString() != "") {
+          for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+            formattedAddress.append(address.getAddressLine(i) + " ");
+          }
+
           this.location = location;
-          address = simpleAddress.toString();
-          formattedAddress = formAddress.toString();
-          this.act.setLocationText(formattedAddress);
-          this.act.enableButton();
+          this.address = formattedAddress.toString();
+          this.act.setLocationText(this.address);
+          this.act.enableButton(true);
         }
-      } catch (IOException e) { }
+      } catch (IOException e) {
+      }
     }
   }
 
   /**
-   * Determines whether new Location reading is better than the current one
-   *
-   * @param location  The new Location that you want to evaluate
-   * @param currentBestLocation  The current Location fix, to which you want
-   *        to compare the new one
-   *
-   * @return true if better location, false if not
+   * Returns location.
+   */
+  public Location getLocation() {
+    return this.location;
+  }
+
+  /**
+   * Returns string-formatted location.
+   */
+  public String getStringLocation() {
+    return this.location.getLatitude() + "," + this.location.getLongitude();
+  }
+
+  /**
+   * Returns address.
+   */
+  public String getAddress() {
+    return this.address;
+  }
+
+  /**
+   * Do nothing when the provider is disabled.
+   */
+  public void onProviderDisabled(String provider) {
+  }
+
+  /**
+   * Do nothing when the provider is enabled.
+   */
+  public void onProviderEnabled(String provider) {
+  }
+
+  /**
+   * Do nothing when the status has changed.
+   */
+  public void onStatusChanged(String provider, int status, Bundle extras) {
+  }
+
+  /**
+   * Returns true is the new {@link Location} is better than the current one.
+   * 
+   * @param location the new Location
+   * @param currentBestLocation the current Location, to which you
+   *        want to compare the new one
+   * 
+   * @return true if the new {@link Location} is better
    */
   protected boolean isBetterLocation(Location newLocation,
       Location currentBestLocation) {
@@ -105,79 +139,20 @@ public class MyLocationListener implements LocationListener {
     // use the new location because the user has likely moved
     if (isSignificantlyNewer) {
       return true;
-    // If the new location is more than two minutes older, it must be worse
     } else if (isSignificantlyOlder) {
+      // If the new location is more than two minutes older, it must be worse
       return false;
     }
 
     // Check whether the new location fix is more or less accurate
-    int accuracyDelta = (int) (newLocation.getAccuracy() -
-        currentBestLocation.getAccuracy());
+    int accuracyDelta = (int) (newLocation.getAccuracy() - currentBestLocation
+        .getAccuracy());
     boolean isMoreAccurate = accuracyDelta < 0;
 
-    // Determine location quality using a combination of timeliness and accuracy
+    // Determine location quality using the accuracy
     if (isMoreAccurate) {
       return true;
     }
     return false;
   }
-
-  /**
-   * Return location.
-   *
-   * @return location
-   */
-  public Location getLocation() {
-    return this.location;
-  }
-
-  /**
-   * Return string-formatted location.
-   *
-   * @return string-formatted location
-   */
-  public String getStringLocation() {
-    return this.location.getLatitude() + "," + this.location.getLongitude();
-  }
-
-  /**
-   * Return address.
-   *
-   * @return address
-   */
-  public String getAddress() {
-    return this.address;
-  }
-
-  /**
-   * Return formatted address (with newline characters).
-   *
-   * @return formatted address
-   */
-  public String getFormattedAddress() {
-    return this.formattedAddress;
-  }
-
-  /**
-   * When the provider is disabled, do nothing.
-   *
-   * @param provider
-   */
-  public void onProviderDisabled(String provider) { }
-
-  /**
-   * When the provider is enabled, do nothing.
-   *
-   * @param provider
-   */
-  public void onProviderEnabled(String provider) { }
-
-  /**
-   * When the status has changed.
-   *
-   * @param provider
-   * @param status
-   * @param extras
-   */
-  public void onStatusChanged(String provider, int status, Bundle extras) { }
 }
