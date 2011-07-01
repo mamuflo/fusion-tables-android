@@ -15,7 +15,7 @@ import com.google.fusiontables.url.RequestHandler;
  */
 public class FtClient {
   public static final String REQUEST_URL =
-    "https://www.google.com/fusiontables/api/query";
+      "https://www.google.com/fusiontables/api/query";
   private String token;
 
   /**

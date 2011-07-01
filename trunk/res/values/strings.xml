@@ -8,6 +8,6 @@
     <item>Needs attention</item>
     <item>Will damage my car!</item>
   </string-array>
-  <string name="location">Current Location:</string>
+  <string name="location">Current location:</string>
   <string name="submit">Submit</string>
 </resources>
