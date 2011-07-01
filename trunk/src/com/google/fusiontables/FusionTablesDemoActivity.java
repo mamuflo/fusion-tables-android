@@ -35,9 +35,9 @@ public class FusionTablesDemoActivity extends Activity {
   private String locationProvider = LocationManager.GPS_PROVIDER;
 
   private FtClient ftclient;
-  private long tableid = 1048750;
-  private String username = "ft.testing@gmail.com";
-  private String password = "testing.ft";
+  private long tableid = 123456;
+  private String username = "<username>";
+  private String password = "<password>";
   private String embedLink = "http://gmaps-samples.googlecode.com/svn/trunk/"
       + "fusiontables/potholes.html";
 
