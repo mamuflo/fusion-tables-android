@@ -59,7 +59,9 @@ public class FusionTablesDemoActivity extends Activity {
   }
 
   /**
-   * Authorizes the user and initializes the UI.
+   * Sets the button to enabled or disabled.
+   * 
+   * @param enabled true to enable the button, false to disable
    */
   public void enableButton(boolean enabled) {
     button.setEnabled(enabled);
@@ -128,12 +130,22 @@ public class FusionTablesDemoActivity extends Activity {
         Spinner spinner = (Spinner) findViewById(R.id.status);
         long state = spinner.getSelectedItemId();
 
+        // Generate INSERT statement
+        StringBuilder insert = new StringBuilder();
+        insert.append("INSERT INTO " + tableid);
+        insert.append(" (Severity, Location, Address, Timestamp) VALUES ");
+        insert.append("(");
+        insert.append(state);
+        insert.append(", '");
+        insert.append(locationListener.getStringLocation());
+        insert.append("', '");
+        insert.append(locationListener.getAddress());
+        insert.append("', ");
+        insert.append(new Date().getTime());
+        insert.append(")");
+
         // Save the data to Fusion Tables
-        ftclient.query("INSERT INTO " + tableid
-            + " (Severity, Location, Address, Timestamp) VALUES " + "(" + state
-            + "," + " '" + locationListener.getStringLocation() + "' ," + " '"
-            + locationListener.getAddress() + "',"
-            + new Date().getTime() + ")");
+        ftclient.query(insert.toString());
       }
     });
   }

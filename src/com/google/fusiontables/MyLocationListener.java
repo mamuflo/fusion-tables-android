@@ -20,7 +20,7 @@ import android.os.Bundle;
 public class MyLocationListener implements LocationListener {
   private Location location;
   private String address = "";
-  private FusionTablesDemoActivity act;
+  private FusionTablesDemoActivity activity;
   private static final int TWO_MINUTES = 1000 * 60 * 2;
 
   /**
@@ -29,7 +29,7 @@ public class MyLocationListener implements LocationListener {
    * @param act the FusionTablesDemoActivity
    */
   public MyLocationListener(FusionTablesDemoActivity act) {
-    this.act = act;
+    this.activity = act;
   }
 
   /**
@@ -42,14 +42,15 @@ public class MyLocationListener implements LocationListener {
   }
 
   /**
-   * Sets the new location values.
+   * Sets the location if the new one is more accurate or timely than
+   * the current one..
    * 
    * @param location the new location
    */
   public void setLocation(Location location) {
     // Only change the location if the new one is better
     if (isBetterLocation(location, this.location)) {
-      Geocoder gc = new Geocoder(this.act, Locale.getDefault());
+      Geocoder gc = new Geocoder(this.activity, Locale.getDefault());
       try {
         // Get the first address in the list of possible addresses for
         // the lat/lon coordinates
@@ -68,8 +69,8 @@ public class MyLocationListener implements LocationListener {
 
           this.location = location;
           this.address = formattedAddress.toString();
-          this.act.setLocationText(this.address);
-          this.act.enableButton(true);
+          this.activity.setLocationText(this.address);
+          this.activity.enableButton(true);
         }
       } catch (IOException e) {
       }
@@ -87,7 +88,7 @@ public class MyLocationListener implements LocationListener {
    * Returns string-formatted location.
    */
   public String getStringLocation() {
-    return this.location.getLatitude() + "," + this.location.getLongitude();
+    return this.location.getLatitude() + ", " + this.location.getLongitude();
   }
 
   /**
@@ -98,19 +99,19 @@ public class MyLocationListener implements LocationListener {
   }
 
   /**
-   * Do nothing when the provider is disabled.
+   * Does nothing when the provider is disabled.
    */
   public void onProviderDisabled(String provider) {
   }
 
   /**
-   * Do nothing when the provider is enabled.
+   * Does nothing when the provider is enabled.
    */
   public void onProviderEnabled(String provider) {
   }
 
   /**
-   * Do nothing when the status has changed.
+   * Does nothing when the status has changed.
    */
   public void onStatusChanged(String provider, int status, Bundle extras) {
   }
@@ -122,7 +123,7 @@ public class MyLocationListener implements LocationListener {
    * @param currentBestLocation the current Location, to which you
    *        want to compare the new one
    * 
-   * @return true if the new {@link Location} is better
+   * @return true if the new {@link Location} is more recent or more accurate
    */
   protected boolean isBetterLocation(Location newLocation,
       Location currentBestLocation) {
